@@ -92,6 +92,13 @@ export default function LoaderScreen({
 
           <div className="loader-screen__loading">
             <GoldLine progress={progress} />
+            <div className="loader-screen__percent" aria-live="polite">
+              <span className="loader-screen__percent-label">Loading</span>
+              <span className="loader-screen__percent-value">
+                {Math.round(progress)}
+                <span className="loader-screen__percent-sign">%</span>
+              </span>
+            </div>
           </div>
         </div>
       </div>
