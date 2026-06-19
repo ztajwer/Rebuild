@@ -87,7 +87,6 @@ export default function LoaderScreen({
                 decoding="async"
                 fetchPriority="high"
               />
-              <div className="loader-screen__logo-shine" aria-hidden="true" />
             </div>
           </div>
 

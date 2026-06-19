@@ -112,9 +112,8 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  overflow: hidden;
-  background: #0a0a0a;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
+  overflow: visible;
+  background: transparent;
 }
 
 .loader-screen__logo {
@@ -124,23 +123,14 @@
   object-fit: contain;
   object-position: center;
   user-select: none;
-  padding: 11%;
+  padding: 8%;
   transform: translateZ(0);
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 2px 12px rgba(177, 157, 123, 0.2));
 }
 
 .loader-screen__logo-shine {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: linear-gradient(
-    125deg,
-    rgba(255, 255, 255, 0.35) 0%,
-    transparent 45%,
-    transparent 55%,
-    rgba(255, 252, 240, 0.1) 100%
-  );
-  animation: logo-shine-sweep 5s ease-in-out infinite;
-  pointer-events: none;
+  display: none;
 }
 
 /* ── Glittery loading bar ── */
