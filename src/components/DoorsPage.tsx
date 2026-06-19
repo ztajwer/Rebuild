@@ -14,17 +14,9 @@ function DoorLeaf({ side }: { side: 'left' | 'right' }) {
     <div className={`doors-page__door doors-page__door--${side}`}>
       <div className="doors-page__door-inner">
         <div className="doors-page__door-face">
+          <div className="doors-page__door-marble" aria-hidden="true" />
           <div className="doors-page__door-shine" aria-hidden="true" />
-          <div className="doors-page__door-grid">
-            {Array.from({ length: 12 }).map((_, i) => (
-              <span key={i} className="doors-page__door-cell" />
-            ))}
-          </div>
-          <div className="doors-page__door-handle">
-            <span className="doors-page__door-handle-bar" />
-          </div>
         </div>
-        <div className="doors-page__door-edge" aria-hidden="true" />
       </div>
     </div>
   )

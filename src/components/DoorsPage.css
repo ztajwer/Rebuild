@@ -1,21 +1,17 @@
 .doors-page {
   --door-open: 0;
-  /* bigger doors — aligned to door_bg.png opening */
-  --portal-top: 18%;
-  --portal-height: 60.5%;
-  --portal-width: 34.2%;
-  --portal-left: 32.9%;
-  --gold-light: #f0dfa8;
-  --gold-mid: #d4b872;
-  --gold-deep: #b8923e;
-  --gold-dark: #8b6914;
+  /* pixel-mapped to door_bg.png opening (1536×1024) */
+  --portal-top: 18.07%;
+  --portal-left: 34.96%;
+  --portal-width: 30.01%;
+  --portal-height: 66.89%;
   position: fixed;
   inset: 0;
   z-index: 9998;
   background: #ebe7e0;
   overflow: hidden;
   perspective: 2400px;
-  perspective-origin: 50% 40%;
+  perspective-origin: 50% 42%;
   touch-action: none;
   animation: doors-enter 0.5s ease forwards;
 }
@@ -41,10 +37,9 @@
   transform-style: preserve-3d;
   z-index: 2;
   pointer-events: none;
-  filter: drop-shadow(0 8px 32px rgba(0, 0, 0, calc(0.18 * (1 - var(--door-open)))));
 }
 
-/* ── 3D golden doors ── */
+/* ── solid golden 3D doors — no lines ── */
 
 .doors-page__door {
   position: absolute;
@@ -68,7 +63,6 @@
 }
 
 .doors-page__door-inner {
-  position: relative;
   width: 100%;
   height: 100%;
   transform-style: preserve-3d;
@@ -79,128 +73,59 @@
   inset: 0;
   backface-visibility: hidden;
   background: linear-gradient(
-    155deg,
-    var(--gold-light) 0%,
-    var(--gold-mid) 38%,
-    var(--gold-deep) 72%,
-    #a08040 100%
+    160deg,
+    #e8d4a0 0%,
+    #d4b872 35%,
+    #c9a961 55%,
+    #b8923e 100%
   );
-  border: 2px solid var(--gold-dark);
-  box-shadow:
-    inset 0 2px 8px rgba(255, 248, 220, 0.45),
-    inset 0 -4px 14px rgba(80, 55, 15, 0.25),
-    0 4px 20px rgba(0, 0, 0, calc(0.15 * (1 - var(--door-open))));
   overflow: hidden;
 }
 
 .doors-page__door--left .doors-page__door-face {
-  border-right-width: 1px;
+  box-shadow:
+    inset -1px 0 0 rgba(80, 55, 15, 0.15),
+    2px 0 16px rgba(0, 0, 0, calc(0.1 * (1 - var(--door-open))));
 }
 
 .doors-page__door--right .doors-page__door-face {
-  border-left-width: 1px;
+  box-shadow:
+    inset 1px 0 0 rgba(80, 55, 15, 0.15),
+    -2px 0 16px rgba(0, 0, 0, calc(0.1 * (1 - var(--door-open))));
+}
+
+/* soft gold marble — no grid lines */
+.doors-page__door-marble {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 22% 30%, rgba(255, 248, 220, 0.35) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 50% at 78% 68%, rgba(212, 175, 55, 0.2) 0%, transparent 50%),
+    linear-gradient(
+      125deg,
+      transparent 40%,
+      rgba(255, 252, 240, 0.25) 48%,
+      transparent 56%
+    );
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
+
+.doors-page__door--right .doors-page__door-marble {
+  transform: scaleX(-1);
 }
 
 .doors-page__door-shine {
   position: absolute;
   inset: 0;
   background: linear-gradient(
-    125deg,
-    transparent 30%,
-    rgba(255, 252, 240, 0.35) 46%,
-    rgba(255, 255, 255, 0.2) 50%,
-    transparent 66%
+    118deg,
+    transparent 38%,
+    rgba(255, 255, 255, 0.18) 46%,
+    rgba(255, 252, 240, 0.12) 50%,
+    transparent 58%
   );
   pointer-events: none;
-  z-index: 1;
-}
-
-.doors-page__door-grid {
-  position: absolute;
-  inset: clamp(8px, 1.4vw, 14px);
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(4, 1fr);
-  gap: 3px;
-  background: rgba(70, 48, 12, 0.55);
-  padding: 2px;
-  z-index: 0;
-  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
-}
-
-.doors-page__door-cell {
-  background: linear-gradient(
-    168deg,
-    #edd9a8 0%,
-    #d4b872 42%,
-    #c9a961 68%,
-    #b8923e 100%
-  );
-  box-shadow:
-    inset 0 2px 5px rgba(255, 248, 220, 0.35),
-    inset 0 -3px 8px rgba(80, 55, 15, 0.22);
-}
-
-/* vertical gold handles at center seam */
-.doors-page__door-handle {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 3;
-}
-
-.doors-page__door--left .doors-page__door-handle {
-  right: clamp(6px, 1.1vw, 11px);
-}
-
-.doors-page__door--right .doors-page__door-handle {
-  left: clamp(6px, 1.1vw, 11px);
-}
-
-.doors-page__door-handle-bar {
-  display: block;
-  width: clamp(4px, 0.65vw, 6px);
-  height: clamp(36px, 5.5vh, 52px);
-  border-radius: 3px;
-  background: linear-gradient(
-    90deg,
-    #a08040 0%,
-    #f0dfa8 35%,
-    #fff8e7 50%,
-    #d4b872 65%,
-    #8b6914 100%
-  );
-  box-shadow:
-    0 2px 6px rgba(0, 0, 0, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.55);
-}
-
-/* 3D door thickness */
-.doors-page__door-edge {
-  position: absolute;
-  top: 0;
-  width: clamp(8px, 1.1vw, 12px);
-  height: 100%;
-  backface-visibility: hidden;
-  background: linear-gradient(
-    180deg,
-    #6b5228 0%,
-    #3d2a12 45%,
-    #6b5228 100%
-  );
-  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.4);
-}
-
-.doors-page__door--left .doors-page__door-edge {
-  right: 0;
-  transform-origin: right center;
-  transform: rotateY(90deg) translateZ(calc(clamp(8px, 1.1vw, 12px) / -2));
-}
-
-.doors-page__door--right .doors-page__door-edge {
-  left: 0;
-  transform-origin: left center;
-  transform: rotateY(-90deg) translateZ(calc(clamp(8px, 1.1vw, 12px) / -2));
 }
 
 /* hint */
@@ -244,19 +169,19 @@
 
 @media (max-width: 768px), (max-aspect-ratio: 4/5) {
   .doors-page {
-    --portal-top: 19%;
-    --portal-height: 58%;
-    --portal-width: 44%;
-    --portal-left: 28%;
+    --portal-top: 18.5%;
+    --portal-left: 27%;
+    --portal-width: 46%;
+    --portal-height: 65%;
   }
 }
 
 @media (max-width: 480px) {
   .doors-page {
-    --portal-top: 20%;
-    --portal-height: 56%;
-    --portal-width: 50%;
-    --portal-left: 25%;
+    --portal-top: 19%;
+    --portal-left: 22%;
+    --portal-width: 56%;
+    --portal-height: 63%;
   }
 }
 
