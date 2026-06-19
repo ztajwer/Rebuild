@@ -104,21 +104,17 @@ export default function LoaderScreen({
 
       <div className="loader-screen__content">
         <div className="loader-screen__brand">
-          <div className="loader-screen__logo-medallion">
-            <div className="loader-screen__logo-glow" aria-hidden="true" />
-            <div className="loader-screen__logo-circle">
-              <img
-                src="/wh_logo.jpeg"
-                alt="MAJ Boutique"
-                className="loader-screen__logo"
-                width={300}
-                height={300}
-                draggable={false}
-                decoding="async"
-                fetchPriority="high"
-              />
-              <div className="loader-screen__logo-shine" aria-hidden="true" />
-            </div>
+          <div className="loader-screen__logo-wrap">
+            <img
+              src="/wh_logo.jpeg"
+              alt="MAJ Boutique"
+              className="loader-screen__logo"
+              width={420}
+              height={420}
+              draggable={false}
+              decoding="async"
+              fetchPriority="high"
+            />
           </div>
 
           <div className="loader-screen__typography">
