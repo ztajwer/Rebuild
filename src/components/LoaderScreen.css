@@ -62,7 +62,7 @@
     max(1.25rem, env(safe-area-inset-top))
     max(1.25rem, env(safe-area-inset-right))
     max(1.25rem, env(safe-area-inset-bottom))
-    max(clamp(2rem, 8vw, 6rem), env(safe-area-inset-left));
+    max(clamp(1.75rem, 6vw, 4.5rem), env(safe-area-inset-left));
 }
 
 .loader-screen__brand {
@@ -174,7 +174,7 @@
 
 @media (max-width: 640px) {
   .loader-screen__content {
-    padding-left: max(clamp(1.5rem, 6vw, 2.5rem), env(safe-area-inset-left));
+    padding-left: max(clamp(1.5rem, 5vw, 2.25rem), env(safe-area-inset-left));
   }
 
   .loader-screen__logo-stage {
