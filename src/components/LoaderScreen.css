@@ -57,18 +57,18 @@
   min-height: 100svh;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   padding:
     max(1.25rem, env(safe-area-inset-top))
     max(1.25rem, env(safe-area-inset-right))
     max(1.25rem, env(safe-area-inset-bottom))
-    max(1.25rem, env(safe-area-inset-left));
+    max(clamp(2rem, 8vw, 6rem), env(safe-area-inset-left));
 }
 
 .loader-screen__brand {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: clamp(1.75rem, 4vh, 2.75rem);
   width: min(100%, 420px);
   transform: translateZ(0);
@@ -173,6 +173,10 @@
 }
 
 @media (max-width: 640px) {
+  .loader-screen__content {
+    padding-left: max(clamp(1.5rem, 6vw, 2.5rem), env(safe-area-inset-left));
+  }
+
   .loader-screen__logo-stage {
     width: clamp(200px, 54vw, 280px);
     height: clamp(200px, 54vw, 280px);
