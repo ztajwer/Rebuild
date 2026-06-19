@@ -1,0 +1,136 @@
+.sparkle-bar {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  overflow: visible;
+}
+
+.sparkle-bar__track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 100px;
+  background: linear-gradient(
+    180deg,
+    rgba(200, 185, 160, 0.15) 0%,
+    rgba(177, 157, 123, 0.08) 100%
+  );
+  box-shadow:
+    inset 0 1px 3px rgba(0, 0, 0, 0.06),
+    inset 0 -1px 2px rgba(255, 255, 255, 0.5);
+  overflow: hidden;
+}
+
+.sparkle-bar__fill {
+  position: relative;
+  height: 100%;
+  border-radius: 100px;
+  background: linear-gradient(
+    90deg,
+    #c4a882 0%,
+    #dbc9a8 18%,
+    #f5ead6 38%,
+    #e8d5b0 52%,
+    #c9b08a 72%,
+    #b19d7b 100%
+  );
+  box-shadow:
+    0 0 12px rgba(212, 190, 150, 0.55),
+    0 0 28px rgba(177, 157, 123, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    inset 0 -1px 2px rgba(120, 100, 70, 0.15);
+  transition: width 0.08s linear;
+  overflow: hidden;
+  min-width: 6px;
+}
+
+.sparkle-bar__shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    transparent 35%,
+    rgba(255, 255, 255, 0.55) 48%,
+    rgba(255, 252, 240, 0.85) 50%,
+    rgba(255, 255, 255, 0.55) 52%,
+    transparent 65%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer-sweep 2.2s ease-in-out infinite;
+}
+
+.sparkle-bar__glow {
+  position: absolute;
+  inset: -4px -2px;
+  border-radius: 100px;
+  background: radial-gradient(
+    ellipse 60% 200% at 100% 50%,
+    rgba(255, 248, 230, 0.7) 0%,
+    rgba(212, 190, 150, 0.3) 40%,
+    transparent 70%
+  );
+  pointer-events: none;
+  animation: glow-pulse 1.8s ease-in-out infinite alternate;
+}
+
+.sparkle-bar__edge {
+  position: absolute;
+  top: 50%;
+  right: -1px;
+  transform: translate(50%, -50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    #fffef8 0%,
+    #f5ead6 35%,
+    #dbc9a8 70%,
+    transparent 100%
+  );
+  box-shadow:
+    0 0 8px rgba(255, 252, 240, 0.95),
+    0 0 18px rgba(212, 190, 150, 0.8),
+    0 0 32px rgba(177, 157, 123, 0.45);
+  animation: edge-sparkle 1.2s ease-in-out infinite;
+}
+
+.sparkle-bar__canvas {
+  position: absolute;
+  inset: -20px -10px;
+  width: calc(100% + 20px);
+  height: calc(100% + 40px);
+  pointer-events: none;
+}
+
+@keyframes shimmer-sweep {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes glow-pulse {
+  from {
+    opacity: 0.6;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes edge-sparkle {
+  0%,
+  100% {
+    transform: translate(50%, -50%) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(50%, -50%) scale(1.35);
+    opacity: 0.85;
+  }
+}
