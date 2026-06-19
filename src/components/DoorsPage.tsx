@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import './DoorsPage.css'
 
-const SCROLL_SENSITIVITY = 0.0014
-const LERP = 0.12
+const SCROLL_SENSITIVITY = 0.0015
+const LERP = 0.11
 
 export default function DoorsPage() {
   const [displayProgress, setDisplayProgress] = useState(0)
@@ -25,7 +25,6 @@ export default function DoorsPage() {
         currentRef.current = targetRef.current
         setDisplayProgress(currentRef.current)
       }
-
       rafRef.current = requestAnimationFrame(tick)
     }
 
@@ -56,7 +55,7 @@ export default function DoorsPage() {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'ArrowDown' || event.key === 'PageDown' || event.key === ' ') {
         event.preventDefault()
-        bumpProgress(0.06)
+        bumpProgress(0.055)
       }
     }
 
@@ -74,47 +73,71 @@ export default function DoorsPage() {
   }, [bumpProgress])
 
   const open = displayProgress
-  const hintOpacity = Math.max(0, 1 - open * 4)
+  const hintOpacity = Math.max(0, 1 - open * 3.5)
 
   return (
     <div
       className="doors-page"
       style={{ '--door-open': open } as React.CSSProperties}
-      aria-label="Enter"
+      aria-label="Enter boutique"
     >
-      <div className="doors-page__blank" aria-hidden="true" />
+      <div className="doors-page__marble" aria-hidden="true" />
+      <div className="doors-page__vignette" aria-hidden="true" />
+      <div className="doors-page__reveal" aria-hidden="true" />
 
-      <div className="doors-page__frame">
-        <div className="doors-page__header" aria-hidden="true" />
-
-        <div className="doors-page__door doors-page__door--left">
-          <div className="doors-page__door-surface">
-            <div className="doors-page__door-panel doors-page__door-panel--top" />
-            <div className="doors-page__door-panel doors-page__door-panel--main" />
-            <div className="doors-page__door-panel doors-page__door-panel--bottom" />
-            <div className="doors-page__door-handle" />
-          </div>
+      <div className="doors-page__portal">
+        <div className="doors-page__lintel" aria-hidden="true">
+          <span className="doors-page__lintel-line" />
         </div>
 
-        <div className="doors-page__door doors-page__door--right">
-          <div className="doors-page__door-surface">
-            <div className="doors-page__door-panel doors-page__door-panel--top" />
-            <div className="doors-page__door-panel doors-page__door-panel--main" />
-            <div className="doors-page__door-panel doors-page__door-panel--bottom" />
-            <div className="doors-page__door-handle" />
+        <div className="doors-page__frame">
+          <div className="doors-page__frame-inner" aria-hidden="true" />
+
+          <div className="doors-page__door doors-page__door--left">
+            <div className="doors-page__door-inner">
+              <div className="doors-page__door-face">
+                <div className="doors-page__door-groove doors-page__door-groove--outer" />
+                <div className="doors-page__door-panel doors-page__door-panel--top" />
+                <div className="doors-page__door-panel doors-page__door-panel--mid" />
+                <div className="doors-page__door-panel doors-page__door-panel--bottom" />
+                <div className="doors-page__door-handle">
+                  <span className="doors-page__door-handle-neck" />
+                  <span className="doors-page__door-handle-lever" />
+                </div>
+              </div>
+              <div className="doors-page__door-edge" />
+            </div>
           </div>
+
+          <div className="doors-page__door doors-page__door--right">
+            <div className="doors-page__door-inner">
+              <div className="doors-page__door-face">
+                <div className="doors-page__door-groove doors-page__door-groove--outer" />
+                <div className="doors-page__door-panel doors-page__door-panel--top" />
+                <div className="doors-page__door-panel doors-page__door-panel--mid" />
+                <div className="doors-page__door-panel doors-page__door-panel--bottom" />
+                <div className="doors-page__door-handle">
+                  <span className="doors-page__door-handle-neck" />
+                  <span className="doors-page__door-handle-lever" />
+                </div>
+              </div>
+              <div className="doors-page__door-edge" />
+            </div>
+          </div>
+
+          <div className="doors-page__seam-glow" aria-hidden="true" />
         </div>
 
-        <div className="doors-page__seam" aria-hidden="true" />
-        <div className="doors-page__threshold" aria-hidden="true" />
+        <div className="doors-page__sill" aria-hidden="true" />
       </div>
 
       <div
         className="doors-page__hint"
         style={{ opacity: hintOpacity }}
-        aria-hidden={open > 0.15}
+        aria-hidden={open > 0.12}
       >
-        <span className="doors-page__hint-text">Scroll to enter</span>
+        <span className="doors-page__hint-line" />
+        <span className="doors-page__hint-text">Scroll to open</span>
         <span className="doors-page__hint-chevron" />
       </div>
     </div>
