@@ -1,15 +1,14 @@
 import { useEffect, useRef } from 'react'
 import './AmbientSparkles.css'
 
-interface Dust {
+interface Spark {
   x: number
   y: number
   size: number
   speed: number
-  drift: number
   phase: number
-  opacity: number
-  twinkleSpeed: number
+  hue: number
+  drift: number
 }
 
 export default function AmbientSparkles() {
@@ -23,22 +22,10 @@ export default function AmbientSparkles() {
     if (!ctx) return
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2)
-    let dust: Dust[] = []
+    let sparks: Spark[] = []
     let raf = 0
     let w = 0
     let h = 0
-
-    const createDust = (): Dust[] =>
-      Array.from({ length: 55 }, () => ({
-        x: Math.random(),
-        y: Math.random(),
-        size: Math.random() * 2.4 + 0.4,
-        speed: Math.random() * 0.00015 + 0.00004,
-        drift: Math.random() * 0.0003 - 0.00015,
-        phase: Math.random() * Math.PI * 2,
-        opacity: Math.random() * 0.55 + 0.15,
-        twinkleSpeed: Math.random() * 0.02 + 0.008,
-      }))
 
     const resize = () => {
       w = window.innerWidth
@@ -48,53 +35,78 @@ export default function AmbientSparkles() {
       canvas.style.width = `${w}px`
       canvas.style.height = `${h}px`
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-      if (dust.length === 0) dust = createDust()
+    }
+
+    const seed = () => {
+      const count = Math.floor((w * h) / 18000)
+      sparks = Array.from({ length: Math.min(count, 55) }, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        size: Math.random() * 2.4 + 0.4,
+        speed: Math.random() * 0.006 + 0.002,
+        phase: Math.random() * Math.PI * 2,
+        hue: Math.random() > 0.35 ? 42 : 0,
+        drift: (Math.random() - 0.5) * 0.3,
+      }))
+    }
+
+    const drawDiamond = (
+      cx: number,
+      cy: number,
+      r: number,
+      alpha: number,
+      hue: number,
+    ) => {
+      ctx.save()
+      ctx.translate(cx, cy)
+      ctx.beginPath()
+      ctx.moveTo(0, -r)
+      ctx.lineTo(r * 0.55, 0)
+      ctx.lineTo(0, r)
+      ctx.lineTo(-r * 0.55, 0)
+      ctx.closePath()
+      ctx.fillStyle =
+        hue === 0
+          ? `rgba(255, 255, 255, ${alpha})`
+          : `hsla(${hue}, 70%, 82%, ${alpha})`
+      ctx.shadowColor = `hsla(${hue || 45}, 80%, 75%, ${alpha})`
+      ctx.shadowBlur = 8
+      ctx.fill()
+      ctx.restore()
+    }
+
+    const animate = (time: number) => {
+      ctx.clearRect(0, 0, w, h)
+
+      for (const s of sparks) {
+        const twinkle =
+          (Math.sin(time * s.speed * 1000 + s.phase) + 1) / 2
+        const alpha = 0.08 + twinkle * 0.55
+        s.y -= s.drift * 0.15
+        s.x += Math.sin(time * 0.0004 + s.phase) * 0.12
+
+        if (s.y < -10) s.y = h + 10
+        if (s.x < -10) s.x = w + 10
+        if (s.x > w + 10) s.x = -10
+
+        drawDiamond(s.x, s.y, s.size * (0.6 + twinkle * 0.5), alpha, s.hue)
+      }
+
+      raf = requestAnimationFrame(animate)
     }
 
     resize()
-    window.addEventListener('resize', resize)
+    seed()
+    raf = requestAnimationFrame(animate)
 
-    let frame = 0
-    const draw = () => {
-      ctx.clearRect(0, 0, w, h)
-
-      for (const p of dust) {
-        p.y -= p.speed
-        p.x += p.drift
-        if (p.y < -0.02) {
-          p.y = 1.02
-          p.x = Math.random()
-        }
-
-        const twinkle =
-          0.45 +
-          0.55 *
-            Math.sin(frame * p.twinkleSpeed + p.phase)
-
-        const px = p.x * w
-        const py = p.y * h
-        const alpha = p.opacity * twinkle
-
-        ctx.save()
-        ctx.translate(px, py)
-        ctx.rotate(Math.PI / 4)
-        ctx.fillStyle = `rgba(255, 248, 225, ${alpha})`
-        ctx.shadowColor = `rgba(212, 190, 150, ${alpha * 0.9})`
-        ctx.shadowBlur = 8
-        const s = p.size
-        ctx.fillRect(-s * 0.3, -s, s * 0.6, s * 2)
-        ctx.fillRect(-s, -s * 0.3, s * 2, s * 0.6)
-        ctx.restore()
-      }
-
-      frame++
-      raf = requestAnimationFrame(draw)
+    const onResize = () => {
+      resize()
+      seed()
     }
-
-    raf = requestAnimationFrame(draw)
+    window.addEventListener('resize', onResize)
 
     return () => {
-      window.removeEventListener('resize', resize)
+      window.removeEventListener('resize', onResize)
       cancelAnimationFrame(raf)
     }
   }, [])
