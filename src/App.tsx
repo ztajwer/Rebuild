@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import LoaderScreen from './components/LoaderScreen'
 import DoorsPage from './components/DoorsPage'
 import './App.css'
@@ -10,15 +10,9 @@ export default function App() {
   const [doorsMounted, setDoorsMounted] = useState(false)
   const [doorsActive, setDoorsActive] = useState(false)
 
-  useEffect(() => {
-    if (phase !== 'doors') return
-    const timer = window.requestAnimationFrame(() => setDoorsActive(true))
-    return () => window.cancelAnimationFrame(timer)
-  }, [phase])
-
   return (
     <>
-      {doorsMounted && phase !== 'loader' && (
+      {doorsMounted && phase !== 'home' && (
         <DoorsPage
           active={doorsActive}
           onComplete={() => setPhase('home')}
@@ -28,7 +22,10 @@ export default function App() {
       {phase === 'loader' && (
         <LoaderScreen
           onReveal={() => setDoorsMounted(true)}
-          onComplete={() => setPhase('doors')}
+          onComplete={() => {
+            setPhase('doors')
+            setDoorsActive(true)
+          }}
         />
       )}
 
