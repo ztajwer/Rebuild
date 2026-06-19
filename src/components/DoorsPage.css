@@ -1,10 +1,107 @@
 .doors-page {
+  --door-open: 0;
+  --gold-light: #fff8e7;
+  --gold-mid: #d4af37;
+  --gold-deep: #8b6914;
+  --gold-shadow: #3d2a12;
   position: fixed;
   inset: 0;
   z-index: 9000;
-  background: #1a1612;
+  background: #0f0c09;
   overflow: hidden;
+  perspective: 1400px;
+  touch-action: none;
 }
+
+/* ── Warm interior behind doors ── */
+
+.doors-page__interior {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(
+      ellipse 90% 70% at 50% 45%,
+      rgba(255, 248, 235, 0.18) 0%,
+      rgba(212, 175, 55, 0.08) 35%,
+      transparent 70%
+    ),
+    url('/loading_bg.png') center / cover no-repeat;
+  background-color: #2a2318;
+  opacity: calc(0.35 + var(--door-open) * 0.65);
+  transform: scale(calc(1 + var(--door-open) * 0.04)) translateZ(0);
+  transition: opacity 0.1s linear;
+}
+
+.doors-page__interior-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 50% 80% at 50% 50%,
+    rgba(255, 252, 240, calc(0.25 * var(--door-open))) 0%,
+    transparent 65%
+  );
+}
+
+.doors-page__interior-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 100% 100% at 50% 50%,
+    transparent 40%,
+    rgba(10, 8, 6, calc(0.55 - var(--door-open) * 0.4)) 100%
+  );
+}
+
+/* ── Revealed content ── */
+
+.doors-page__content {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.5rem, 2vh, 1rem);
+  padding: max(1.5rem, env(safe-area-inset-top))
+    max(1.5rem, env(safe-area-inset-right))
+    max(1.5rem, env(safe-area-inset-bottom))
+    max(1.5rem, env(safe-area-inset-left));
+  opacity: calc(max(0, (var(--door-open) - 0.25) * 1.6));
+  transform: scale(calc(0.94 + var(--door-open) * 0.06)) translateZ(0);
+  pointer-events: none;
+}
+
+.doors-page__logo {
+  width: clamp(64px, 12vw, 96px);
+  height: auto;
+  object-fit: contain;
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 2px 20px rgba(212, 175, 55, 0.35));
+}
+
+.doors-page__welcome {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(1.75rem, 5vw, 3rem);
+  font-weight: 300;
+  color: #f5ead6;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.doors-page__tagline {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(0.65rem, 1.8vw, 0.75rem);
+  font-weight: 300;
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  color: rgba(212, 190, 150, 0.75);
+}
+
+/* ── Door frame & arch ── */
 
 .doors-page__frame {
   position: absolute;
@@ -13,189 +110,401 @@
   pointer-events: none;
 }
 
-.doors-page__door {
+.doors-page__arch {
   position: absolute;
   top: 0;
+  left: 50%;
+  width: min(92vw, 680px);
+  height: clamp(28px, 4vh, 44px);
+  transform: translateX(-50%);
+  background: linear-gradient(
+    180deg,
+    #6b5228 0%,
+    var(--gold-mid) 35%,
+    var(--gold-light) 50%,
+    var(--gold-mid) 65%,
+    #4a3818 100%
+  );
+  border-radius: 0 0 50% 50% / 0 0 100% 100%;
+  box-shadow:
+    0 4px 24px rgba(212, 175, 55, 0.35),
+    inset 0 2px 8px rgba(255, 248, 231, 0.5),
+    inset 0 -3px 10px rgba(61, 42, 18, 0.6);
+}
+
+.doors-page__threshold {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: clamp(10px, 1.8vh, 18px);
+  background: linear-gradient(
+    180deg,
+    #5c4520 0%,
+    var(--gold-mid) 40%,
+    var(--gold-light) 55%,
+    #6b5228 100%
+  );
+  box-shadow:
+    0 -2px 16px rgba(212, 175, 55, 0.3),
+    inset 0 2px 6px rgba(255, 248, 231, 0.4);
+}
+
+.doors-page__seam {
+  position: absolute;
+  top: clamp(28px, 4vh, 44px);
+  bottom: clamp(10px, 1.8vh, 18px);
+  left: 50%;
+  width: 3px;
+  transform: translateX(-50%);
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(255, 248, 231, calc(0.15 + var(--door-open) * 0.5)) 15%,
+    rgba(255, 252, 240, calc(0.3 + var(--door-open) * 0.55)) 50%,
+    rgba(255, 248, 231, calc(0.15 + var(--door-open) * 0.5)) 85%,
+    transparent 100%
+  );
+  box-shadow: 0 0 calc(8px + var(--door-open) * 24px) rgba(255, 248, 220, calc(var(--door-open) * 0.6));
+  opacity: calc(1 - var(--door-open) * 0.3);
+}
+
+/* ── Doors ── */
+
+.doors-page__door {
+  position: absolute;
+  top: clamp(28px, 4vh, 44px);
+  bottom: clamp(10px, 1.8vh, 18px);
   width: 50%;
-  height: 100%;
   will-change: transform;
-  transition: transform 1.6s cubic-bezier(0.77, 0, 0.175, 1);
+  transform-style: preserve-3d;
 }
 
 .doors-page__door--left {
   left: 0;
-  transform: translateX(0);
+  transform-origin: left center;
+  transform:
+    translateX(calc(var(--door-open) * -102%))
+    rotateY(calc(var(--door-open) * -18deg))
+    translateZ(0);
 }
 
 .doors-page__door--right {
   right: 0;
-  transform: translateX(0);
+  transform-origin: right center;
+  transform:
+    translateX(calc(var(--door-open) * 102%))
+    rotateY(calc(var(--door-open) * 18deg))
+    translateZ(0);
 }
 
-.doors-page--open .doors-page__door--left {
-  transform: translateX(-100%);
-}
-
-.doors-page--open .doors-page__door--right {
-  transform: translateX(100%);
-}
-
-.doors-page__panel {
+.doors-page__door-body {
+  position: relative;
   width: 100%;
   height: 100%;
+  transform-style: preserve-3d;
+}
+
+.doors-page__door-frame {
+  position: absolute;
+  inset: 0;
+  border: clamp(3px, 0.5vw, 5px) solid transparent;
+  border-image: linear-gradient(
+    145deg,
+    var(--gold-deep) 0%,
+    var(--gold-light) 25%,
+    var(--gold-mid) 50%,
+    #b8923e 75%,
+    var(--gold-deep) 100%
+  ) 1;
+  box-shadow:
+    inset 0 0 40px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 1px rgba(255, 248, 231, 0.15);
+}
+
+.doors-page__door-face {
+  position: absolute;
+  inset: clamp(8px, 1.2vw, 14px);
   background:
     linear-gradient(
-      135deg,
-      rgba(255, 252, 247, 0.06) 0%,
-      transparent 50%
+      168deg,
+      rgba(255, 248, 231, 0.12) 0%,
+      transparent 28%
     ),
-    url('/loading_bg.png') center / cover no-repeat;
-  background-color: #2a2318;
-  box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.45);
+    linear-gradient(
+      145deg,
+      #4a3818 0%,
+      #6b5228 18%,
+      #8b6914 38%,
+      #c9a227 52%,
+      #8b6914 68%,
+      #5c4520 85%,
+      #3d2a12 100%
+    );
+  box-shadow:
+    inset 0 2px 20px rgba(255, 248, 231, 0.08),
+    inset 0 -4px 30px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(212, 175, 55, 0.25);
+  overflow: hidden;
 }
 
-.doors-page__door--left .doors-page__panel {
-  background-position: 20% center;
-}
-
-.doors-page__door--right .doors-page__panel {
-  background-position: 80% center;
-}
-
-.doors-page__trim {
+.doors-page__door-inset {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: linear-gradient(
-    180deg,
-    transparent,
-    rgba(212, 190, 150, 0.7) 20%,
-    rgba(245, 234, 214, 0.95) 50%,
-    rgba(212, 190, 150, 0.7) 80%,
-    transparent
+  left: 12%;
+  right: 12%;
+  border-radius: 2px;
+  background:
+    linear-gradient(
+      160deg,
+      rgba(255, 248, 231, 0.06) 0%,
+      transparent 40%
+    ),
+    linear-gradient(
+      145deg,
+      #3d2a12 0%,
+      #5c4520 30%,
+      #8b6914 50%,
+      #6b5228 70%,
+      #3d2a12 100%
+    );
+  box-shadow:
+    inset 0 3px 12px rgba(0, 0, 0, 0.55),
+    inset 0 -1px 4px rgba(255, 248, 231, 0.06),
+    0 0 0 1px rgba(212, 175, 55, 0.35),
+    0 1px 0 rgba(255, 248, 231, 0.12);
+}
+
+.doors-page__door-inset--top {
+  top: 8%;
+  height: 22%;
+}
+
+.doors-page__door-inset--mid {
+  top: 36%;
+  height: 28%;
+}
+
+.doors-page__door-inset--bottom {
+  bottom: 8%;
+  height: 22%;
+}
+
+.doors-page__door-shimmer {
+  position: absolute;
+  inset: -50%;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    transparent 0deg 320deg,
+    rgba(255, 255, 255, 0.08) 340deg,
+    rgba(255, 248, 231, 0.18) 350deg,
+    transparent 360deg
   );
-  box-shadow: 0 0 12px rgba(212, 190, 150, 0.4);
+  animation: door-shimmer-spin 8s linear infinite;
+  mix-blend-mode: overlay;
+  pointer-events: none;
 }
 
-.doors-page__door--left .doors-page__trim {
-  right: 0;
+.doors-page__door-beading {
+  position: absolute;
+  inset: clamp(14px, 2vw, 22px);
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 248, 231, 0.08),
+    0 0 12px rgba(212, 175, 55, 0.15);
+  pointer-events: none;
 }
 
-.doors-page__door--right .doors-page__trim {
-  left: 0;
+.doors-page__door--left .doors-page__door-beading {
+  border-right: none;
 }
 
-.doors-page__center-glow {
+.doors-page__door--right .doors-page__door-beading {
+  border-left: none;
+}
+
+/* ── Hinges ── */
+
+.doors-page__hinge {
+  position: absolute;
+  left: clamp(6px, 1vw, 10px);
+  width: clamp(10px, 1.6vw, 14px);
+  height: clamp(28px, 4.5vh, 40px);
+  background: linear-gradient(
+    90deg,
+    #3d2a12 0%,
+    var(--gold-mid) 30%,
+    var(--gold-light) 50%,
+    var(--gold-mid) 70%,
+    #3d2a12 100%
+  );
+  border-radius: 2px;
+  box-shadow:
+    1px 0 4px rgba(0, 0, 0, 0.5),
+    inset 0 1px 2px rgba(255, 248, 231, 0.4);
+}
+
+.doors-page__door--right .doors-page__hinge {
+  left: auto;
+  right: clamp(6px, 1vw, 10px);
+}
+
+.doors-page__hinge--1 { top: 14%; }
+.doors-page__hinge--2 { top: 46%; }
+.doors-page__hinge--3 { top: 78%; }
+
+.doors-page__hinge::before,
+.doors-page__hinge::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    var(--gold-light) 0%,
+    var(--gold-deep) 100%
+  );
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.doors-page__hinge::before { top: 4px; }
+.doors-page__hinge::after { bottom: 4px; }
+
+/* ── Handles ── */
+
+.doors-page__handle {
   position: absolute;
   top: 50%;
-  left: 50%;
-  width: 4px;
-  height: 100%;
-  transform: translate(-50%, -50%);
+  transform: translateY(-50%);
+  width: clamp(18px, 2.8vw, 26px);
+  height: clamp(48px, 8vh, 68px);
+}
+
+.doors-page__handle--left {
+  right: clamp(10px, 2vw, 18px);
+}
+
+.doors-page__handle--right {
+  left: clamp(10px, 2vw, 18px);
+}
+
+.doors-page__handle-plate {
+  position: absolute;
+  inset: 0;
+  border-radius: 3px;
   background: linear-gradient(
-    180deg,
-    transparent,
-    rgba(245, 234, 214, 0.5) 50%,
-    transparent
+    160deg,
+    #fff8e7 0%,
+    #d4af37 35%,
+    #8b6914 70%,
+    #c9a227 100%
   );
-  opacity: 0;
-  transition: opacity 0.8s ease 0.4s;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.45),
+    inset 0 1px 3px rgba(255, 255, 255, 0.5),
+    inset 0 -2px 4px rgba(61, 42, 18, 0.4);
 }
 
-.doors-page--open .doors-page__center-glow {
-  opacity: 1;
+.doors-page__handle-knob {
+  position: absolute;
+  top: 50%;
+  width: clamp(12px, 2vw, 16px);
+  height: clamp(12px, 2vw, 16px);
+  margin-top: calc(clamp(12px, 2vw, 16px) / -2);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 35% 30%,
+    #fff8e7 0%,
+    #d4af37 45%,
+    #8b6914 100%
+  );
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.5),
+    inset 0 -2px 4px rgba(61, 42, 18, 0.35),
+    inset 0 2px 3px rgba(255, 255, 255, 0.45);
 }
 
-.doors-page__content {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  height: 100%;
-  min-height: 100dvh;
+.doors-page__handle--left .doors-page__handle-knob {
+  right: clamp(-8px, -1.2vw, -5px);
+  left: auto;
+}
+
+.doors-page__handle--right .doors-page__handle-knob {
+  left: clamp(-8px, -1.2vw, -5px);
+  right: auto;
+}
+
+/* ── Scroll hint ── */
+
+.doors-page__hint {
+  position: absolute;
+  bottom: max(2rem, env(safe-area-inset-bottom));
+  left: 50%;
+  z-index: 3;
+  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: clamp(1rem, 3vh, 1.75rem);
-  padding: max(1.5rem, env(safe-area-inset-top))
-    max(1.5rem, env(safe-area-inset-right))
-    max(1.5rem, env(safe-area-inset-bottom))
-    max(1.5rem, env(safe-area-inset-left));
-  background: radial-gradient(
-    ellipse 80% 60% at 50% 50%,
-    #3d3428 0%,
-    #1a1612 70%
-  );
-  opacity: 0;
-  transition: opacity 0.6s ease 0.9s;
+  gap: 0.5rem;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
 }
 
-.doors-page--open .doors-page__content {
-  opacity: 1;
-}
-
-.doors-page__logo {
-  width: clamp(72px, 14vw, 108px);
-  height: auto;
-  object-fit: contain;
-  mix-blend-mode: screen;
-  filter: drop-shadow(0 2px 16px rgba(212, 190, 150, 0.25));
-}
-
-.doors-page__welcome {
-  font-family: 'Poppins', sans-serif;
-  font-size: clamp(2rem, 6vw, 3.5rem);
-  font-weight: 500;
-  color: #f5ead6;
-  letter-spacing: 0.08em;
-}
-
-.doors-page__enter {
+.doors-page__hint-text {
   font-family: 'Inter', sans-serif;
-  font-size: clamp(0.65rem, 2vw, 0.75rem);
-  font-weight: 400;
-  letter-spacing: 0.45em;
+  font-size: 0.65rem;
+  font-weight: 300;
+  letter-spacing: 0.38em;
   text-transform: uppercase;
-  color: #2a2318;
-  background: linear-gradient(135deg, #f5ead6, #c4a882);
-  border: none;
-  padding: 1rem 2rem;
-  cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 4px 24px rgba(177, 157, 123, 0.3);
+  color: rgba(245, 234, 214, 0.7);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
 }
 
-.doors-page__enter:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(212, 190, 150, 0.45);
+.doors-page__hint-chevron {
+  width: 14px;
+  height: 14px;
+  border-right: 1px solid rgba(212, 190, 150, 0.7);
+  border-bottom: 1px solid rgba(212, 190, 150, 0.7);
+  transform: rotate(45deg);
+  animation: hint-bounce 2s ease-in-out infinite;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .doors-page__door {
-    transition-duration: 0.01ms;
-  }
+@keyframes door-shimmer-spin {
+  to { transform: rotate(360deg); }
+}
 
-  .doors-page__content {
-    transition-duration: 0.01ms;
-    opacity: 1;
-  }
+@keyframes hint-bounce {
+  0%, 100% { transform: rotate(45deg) translateY(0); opacity: 0.5; }
+  50% { transform: rotate(45deg) translateY(6px); opacity: 1; }
 }
 
 @media (max-width: 768px) {
-  .doors-page__panel {
-    background-image:
-      linear-gradient(
-        135deg,
-        rgba(255, 252, 247, 0.06) 0%,
-        transparent 50%
-      ),
-      url('/mob_bg.png');
+  .doors-page__interior {
+    background-image: url('/mob_bg.png');
   }
 }
 
 @media (max-width: 640px) {
   .doors-page__content {
     text-align: center;
+  }
+
+  .doors-page__door-inset {
+    left: 10%;
+    right: 10%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .doors-page__door-shimmer,
+  .doors-page__hint-chevron {
+    animation: none;
+  }
+
+  .doors-page__door--left,
+  .doors-page__door--right {
+    transition: transform 0.8s ease;
   }
 }
