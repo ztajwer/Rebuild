@@ -1,0 +1,71 @@
+.gold-line {
+  position: relative;
+  width: 100%;
+  height: 1px;
+  contain: layout style;
+}
+
+.gold-line__track {
+  position: absolute;
+  inset: 0;
+  background: rgba(177, 157, 123, 0.18);
+}
+
+.gold-line__fill {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  will-change: transform;
+  background: linear-gradient(
+    90deg,
+    #9a8568 0%,
+    #c4a882 30%,
+    #f5ead6 50%,
+    #dbc9a8 75%,
+    #b19d7b 100%
+  );
+  box-shadow: 0 0 12px rgba(212, 190, 150, 0.45);
+  overflow: hidden;
+}
+
+.gold-line__shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.55) 50%,
+    transparent 100%
+  );
+  background-size: 40% 100%;
+  animation: gold-line-shimmer 3.5s ease-in-out infinite;
+  opacity: 0.7;
+}
+
+.gold-line__tip-glow {
+  position: absolute;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle,
+    #fffef8 0%,
+    rgba(245, 234, 214, 0.8) 50%,
+    transparent 100%
+  );
+  box-shadow:
+    0 0 8px rgba(255, 252, 240, 0.9),
+    0 0 16px rgba(212, 190, 150, 0.5);
+  will-change: left;
+}
+
+@keyframes gold-line-shimmer {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(320%);
+  }
+}

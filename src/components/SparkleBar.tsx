@@ -15,6 +15,7 @@ interface Particle {
   maxLife: number
   hue: number
   alpha: number
+  type: 'star' | 'diamond'
 }
 
 export default function SparkleBar({ progress }: SparkleBarProps) {
@@ -53,18 +54,20 @@ export default function SparkleBar({ progress }: SparkleBarProps) {
 
     const spawnParticle = (barWidth: number, barHeight: number) => {
       const edge = (progressRef.current / 100) * barWidth
-      const spread = 18
+      const trail = Math.random() * edge * 0.85
+      const spread = 28
 
       particlesRef.current.push({
-        x: edge + (Math.random() - 0.5) * spread,
-        y: barHeight / 2 + (Math.random() - 0.5) * barHeight * 1.6,
-        vx: (Math.random() - 0.3) * 1.8,
-        vy: (Math.random() - 0.5) * 1.4,
-        size: Math.random() * 2.2 + 0.6,
+        x: trail + (Math.random() - 0.5) * spread,
+        y: barHeight / 2 + (Math.random() - 0.5) * barHeight * 3,
+        vx: (Math.random() - 0.2) * 2.4,
+        vy: (Math.random() - 0.5) * 2,
+        size: Math.random() * 3 + 0.8,
         life: 0,
-        maxLife: Math.random() * 40 + 25,
-        hue: Math.random() > 0.5 ? 42 : 48,
-        alpha: Math.random() * 0.6 + 0.4,
+        maxLife: Math.random() * 50 + 30,
+        hue: Math.random() > 0.3 ? 42 + Math.random() * 8 : 0,
+        alpha: Math.random() * 0.7 + 0.3,
+        type: Math.random() > 0.45 ? 'diamond' : 'star',
       })
     }
 
@@ -77,12 +80,43 @@ export default function SparkleBar({ progress }: SparkleBarProps) {
     ) => {
       ctx.save()
       ctx.translate(cx, cy)
-      ctx.rotate(Math.PI / 4)
-      ctx.fillStyle = `hsla(${hue}, 85%, 78%, ${alpha})`
-      ctx.shadowColor = `hsla(${hue}, 90%, 70%, ${alpha * 0.8})`
-      ctx.shadowBlur = 6
-      ctx.fillRect(-r * 0.35, -r, r * 0.7, r * 2)
-      ctx.fillRect(-r, -r * 0.35, r * 2, r * 0.7)
+      ctx.rotate(Math.PI / 4 + performance.now() * 0.002)
+      const color =
+        hue === 0
+          ? `rgba(255, 255, 255, ${alpha})`
+          : `hsla(${hue}, 90%, 80%, ${alpha})`
+      ctx.fillStyle = color
+      ctx.shadowColor = color
+      ctx.shadowBlur = 10
+      ctx.fillRect(-r * 0.3, -r, r * 0.6, r * 2)
+      ctx.fillRect(-r, -r * 0.3, r * 2, r * 0.6)
+      ctx.restore()
+    }
+
+    const drawDiamond = (
+      cx: number,
+      cy: number,
+      r: number,
+      alpha: number,
+      hue: number,
+    ) => {
+      ctx.save()
+      ctx.translate(cx, cy)
+      ctx.rotate(performance.now() * 0.001)
+      ctx.beginPath()
+      ctx.moveTo(0, -r)
+      ctx.lineTo(r * 0.6, 0)
+      ctx.lineTo(0, r)
+      ctx.lineTo(-r * 0.6, 0)
+      ctx.closePath()
+      const color =
+        hue === 0
+          ? `rgba(255, 252, 248, ${alpha})`
+          : `hsla(${hue}, 85%, 78%, ${alpha})`
+      ctx.fillStyle = color
+      ctx.shadowColor = color
+      ctx.shadowBlur = 12
+      ctx.fill()
       ctx.restore()
     }
 
@@ -91,30 +125,35 @@ export default function SparkleBar({ progress }: SparkleBarProps) {
       const { width, height } = container.getBoundingClientRect()
       ctx.clearRect(0, 0, width, height)
 
-      if (frame % 2 === 0 && progressRef.current > 2) {
-        const count = progressRef.current > 90 ? 1 : 2
-        for (let i = 0; i < count; i++) spawnParticle(width, height)
+      if (progressRef.current > 1) {
+        const burst = progressRef.current > 85 ? 4 : 3
+        for (let i = 0; i < burst; i++) spawnParticle(width, height)
       }
 
       particlesRef.current = particlesRef.current.filter((p) => {
         p.life++
         p.x += p.vx
         p.y += p.vy
-        p.vy -= 0.015
+        p.vy -= 0.02
+        p.vx *= 0.995
 
         const t = p.life / p.maxLife
-        const fade = t < 0.2 ? t / 0.2 : t > 0.7 ? (1 - t) / 0.3 : 1
+        const fade = t < 0.15 ? t / 0.15 : t > 0.65 ? (1 - t) / 0.35 : 1
         const alpha = p.alpha * fade
 
-        if (alpha > 0.05) {
-          drawStar(p.x, p.y, p.size, alpha, p.hue)
+        if (alpha > 0.04) {
+          if (p.type === 'diamond') {
+            drawDiamond(p.x, p.y, p.size, alpha, p.hue)
+          } else {
+            drawStar(p.x, p.y, p.size, alpha, p.hue)
+          }
         }
 
         return p.life < p.maxLife
       })
 
-      if (particlesRef.current.length > 120) {
-        particlesRef.current = particlesRef.current.slice(-80)
+      if (particlesRef.current.length > 160) {
+        particlesRef.current = particlesRef.current.slice(-100)
       }
 
       frame++
@@ -132,16 +171,26 @@ export default function SparkleBar({ progress }: SparkleBarProps) {
 
   return (
     <div className="sparkle-bar" ref={containerRef}>
+      <div className="sparkle-bar__aura" aria-hidden="true" />
+
       <div className="sparkle-bar__track">
+        <div className="sparkle-bar__track-shine" />
         <div
           className="sparkle-bar__fill"
           style={{ width: `${progress}%` }}
         >
-          <div className="sparkle-bar__shimmer" />
+          <div className="sparkle-bar__facets" />
+          <div className="sparkle-bar__shimmer sparkle-bar__shimmer--a" />
+          <div className="sparkle-bar__shimmer sparkle-bar__shimmer--b" />
           <div className="sparkle-bar__glow" />
-          <div className="sparkle-bar__edge" />
+          <div className="sparkle-bar__trail" />
+          <div className="sparkle-bar__edge">
+            <div className="sparkle-bar__edge-core" />
+            <div className="sparkle-bar__edge-ring" />
+          </div>
         </div>
       </div>
+
       <canvas
         ref={canvasRef}
         className="sparkle-bar__canvas"
