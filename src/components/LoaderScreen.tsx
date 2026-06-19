@@ -20,7 +20,6 @@ const TAGLINES = [
 
 const SHINE_MS = 280
 const REVEAL_MS = 220
-const EXIT_MS = 380
 const COMPLETE_MS = 520
 
 function getTaglineIndex(progress: number) {
