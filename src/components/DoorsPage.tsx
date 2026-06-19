@@ -22,7 +22,7 @@ export default function DoorsPage({ active, onComplete }: DoorsPageProps) {
 
       <div className="doors-page__content">
         <img
-          src="/wh_logo.jpeg"
+          src="/wh_logo.png"
           alt=""
           className="doors-page__logo"
           width={120}

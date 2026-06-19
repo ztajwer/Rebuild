@@ -96,7 +96,7 @@ export default function LoaderScreen({
             </div>
             <div className="loader-screen__logo-circle">
               <img
-                src="/wh_logo.jpeg"
+                src="/wh_logo.png"
                 alt="MAJ Boutique"
                 className="loader-screen__logo"
                 width={360}
