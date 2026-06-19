@@ -9,20 +9,18 @@ interface LoaderScreenProps {
   duration?: number
 }
 
-type LoaderPhase = 'loading' | 'shine' | 'reveal' | 'exit'
+type LoaderPhase = 'loading' | 'reveal' | 'exit'
 
-const SHINE_MS = 320
-const REVEAL_MS = 240
-const COMPLETE_MS = 560
+const REVEAL_MS = 400
+const COMPLETE_MS = 900
 
 export default function LoaderScreen({
   onComplete,
   onReveal,
-  duration = 750,
+  duration = 4000,
 }: LoaderScreenProps) {
   const [progress, setProgress] = useState(0)
   const [phase, setPhase] = useState<LoaderPhase>('loading')
-  const [displayPercent, setDisplayPercent] = useState(0)
   const startTime = useRef<number | null>(null)
   const rafId = useRef<number>(0)
   const completedRef = useRef(false)
@@ -37,7 +35,6 @@ export default function LoaderScreen({
       const eased = easeOutCubic(raw)
 
       setProgress(eased * 100)
-      setDisplayPercent(Math.round(eased * 100))
 
       if (raw < 1) rafId.current = requestAnimationFrame(tick)
     }
@@ -50,14 +47,12 @@ export default function LoaderScreen({
     if (progress < 100 || completedRef.current) return
     completedRef.current = true
 
-    setPhase('shine')
-
     const revealTimer = window.setTimeout(() => {
       setPhase('reveal')
       onReveal?.()
-    }, SHINE_MS)
+    }, 200)
 
-    const exitTimer = window.setTimeout(() => setPhase('exit'), SHINE_MS + REVEAL_MS)
+    const exitTimer = window.setTimeout(() => setPhase('exit'), REVEAL_MS)
     const completeTimer = window.setTimeout(onComplete, COMPLETE_MS)
 
     return () => {
@@ -74,16 +69,6 @@ export default function LoaderScreen({
       aria-label="Loading MAJ Boutique"
     >
       <div className="loader-screen__bg" aria-hidden="true" />
-      <div className="loader-screen__overlay" aria-hidden="true" />
-
-      <div className="loader-screen__diamond-reflections" aria-hidden="true">
-        <div className="loader-screen__diamond loader-screen__diamond--1" />
-        <div className="loader-screen__diamond loader-screen__diamond--2" />
-        <span className="loader-screen__sparkle loader-screen__sparkle--1" />
-        <span className="loader-screen__sparkle loader-screen__sparkle--2" />
-        <span className="loader-screen__sparkle loader-screen__sparkle--3" />
-      </div>
-
       <LuxeGlitter />
       <div className="loader-screen__gold-reveal" aria-hidden="true" />
 
@@ -91,9 +76,6 @@ export default function LoaderScreen({
         <div className="loader-screen__brand">
           <div className="loader-screen__logo-stage">
             <div className="loader-screen__logo-ring" aria-hidden="true" />
-            <div className="loader-screen__logo-orbit" aria-hidden="true">
-              <span /><span /><span /><span /><span /><span />
-            </div>
             <div className="loader-screen__logo-circle">
               <img
                 src="/wh_logo.png"
@@ -109,16 +91,8 @@ export default function LoaderScreen({
             </div>
           </div>
 
-          <div className="loader-screen__typography">
-            <h1 className="loader-screen__title">MAJ Boutique</h1>
-            <p className="loader-screen__eyebrow">Fine Jewellery</p>
-          </div>
-
           <div className="loader-screen__loading">
             <GoldLine progress={progress} />
-            <p className="loader-screen__status" aria-live="polite">
-              Loading <span className="loader-screen__status-num">{displayPercent}%</span>
-            </p>
           </div>
         </div>
       </div>

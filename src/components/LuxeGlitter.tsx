@@ -47,8 +47,8 @@ export default function LuxeGlitter() {
       x: Math.random() * w,
       y: -Math.random() * h * 0.3,
       vx: (Math.random() - 0.5) * 0.5,
-      vy: Math.random() * 1.2 + 0.5,
-      size: Math.random() * 2.8 + 0.8,
+      vy: Math.random() * 1.4 + 0.6,
+      size: Math.random() * 3.2 + 0.9,
       rot: Math.random() * Math.PI,
       spin: (Math.random() - 0.5) * 0.05,
       life: 0,
@@ -58,7 +58,7 @@ export default function LuxeGlitter() {
     })
 
     const seed = () => {
-      const cap = w < 640 ? 70 : 110
+      const cap = w < 640 ? 85 : 130
       particles = Array.from({ length: cap }, spawn)
     }
 
