@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
+import LuxeGlitter from './LuxeGlitter'
 import GoldLine from './GoldLine'
 import './LoaderScreen.css'
 
@@ -83,21 +84,29 @@ export default function LoaderScreen({
         <span className="loader-screen__sparkle loader-screen__sparkle--3" />
       </div>
 
+      <LuxeGlitter />
       <div className="loader-screen__gold-reveal" aria-hidden="true" />
 
       <div className="loader-screen__content">
         <div className="loader-screen__brand">
-          <div className="loader-screen__logo-wrap">
-            <img
-              src="/wh_logo.jpeg"
-              alt="MAJ Boutique"
-              className="loader-screen__logo"
-              width={380}
-              height={380}
-              draggable={false}
-              decoding="async"
-              fetchPriority="high"
-            />
+          <div className="loader-screen__logo-stage">
+            <div className="loader-screen__logo-ring" aria-hidden="true" />
+            <div className="loader-screen__logo-orbit" aria-hidden="true">
+              <span /><span /><span /><span /><span /><span />
+            </div>
+            <div className="loader-screen__logo-circle">
+              <img
+                src="/wh_logo.jpeg"
+                alt="MAJ Boutique"
+                className="loader-screen__logo"
+                width={360}
+                height={360}
+                draggable={false}
+                decoding="async"
+                fetchPriority="high"
+              />
+              <div className="loader-screen__logo-shine" aria-hidden="true" />
+            </div>
           </div>
 
           <div className="loader-screen__typography">
