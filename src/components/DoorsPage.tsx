@@ -1,41 +1,123 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import './DoorsPage.css'
 
-const SCROLL_SENSITIVITY = 0.0015
-const LERP = 0.11
+const AUTO_OPEN_MS = 2800
+const CHIME_SRC = '/Sparkling Chime Sound - Meinl Sonic Energy.mp3'
+const TRIGGER_DELTA = 0.008
+
+function easeOutCubic(t: number) {
+  return 1 - Math.pow(1 - t, 3)
+}
+
+function DoorLeaf({ side }: { side: 'left' | 'right' }) {
+  return (
+    <div className={`doors-page__door doors-page__door--${side}`}>
+      <div className="doors-page__door-inner">
+        <div className="doors-page__door-face">
+          <div className="doors-page__door-shine" aria-hidden="true" />
+          <div className="doors-page__door-grid">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <span key={i} className="doors-page__door-cell" />
+            ))}
+          </div>
+          <div className="doors-page__door-handle">
+            <span className="doors-page__door-handle-bar" />
+          </div>
+        </div>
+        <div className="doors-page__door-edge" aria-hidden="true" />
+      </div>
+    </div>
+  )
+}
 
 export default function DoorsPage() {
   const [displayProgress, setDisplayProgress] = useState(0)
-  const targetRef = useRef(0)
-  const currentRef = useRef(0)
+  const autoStartRef = useRef<number | null>(null)
+  const autoTriggeredRef = useRef(false)
   const rafRef = useRef(0)
   const touchStartY = useRef(0)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const fadeRafRef = useRef(0)
 
-  const bumpProgress = useCallback((delta: number) => {
-    targetRef.current = Math.min(1, Math.max(0, targetRef.current + delta))
+  const fadeOutChime = useCallback(() => {
+    const audio = audioRef.current
+    if (!audio) return
+
+    cancelAnimationFrame(fadeRafRef.current)
+    const startVol = audio.volume
+    const start = performance.now()
+
+    const fade = (now: number) => {
+      const t = Math.min((now - start) / 700, 1)
+      audio.volume = Math.max(0, startVol * (1 - t))
+      if (t < 1) {
+        fadeRafRef.current = requestAnimationFrame(fade)
+      } else {
+        audio.pause()
+        audio.currentTime = 0
+        audioRef.current = null
+      }
+    }
+
+    fadeRafRef.current = requestAnimationFrame(fade)
   }, [])
 
+  const startChime = useCallback(() => {
+    if (audioRef.current) return
+
+    const audio = new Audio(CHIME_SRC)
+    audio.volume = 0.38
+    audio.loop = true
+    audioRef.current = audio
+    audio.play().catch(() => {
+      audioRef.current = null
+    })
+  }, [])
+
+  const triggerAutoOpen = useCallback(() => {
+    if (autoTriggeredRef.current) return
+    autoTriggeredRef.current = true
+    autoStartRef.current = performance.now()
+    startChime()
+  }, [startChime])
+
+  const bumpScroll = useCallback(
+    (delta: number) => {
+      if (delta > TRIGGER_DELTA) triggerAutoOpen()
+    },
+    [triggerAutoOpen],
+  )
+
   useEffect(() => {
-    const tick = () => {
-      const diff = targetRef.current - currentRef.current
-      if (Math.abs(diff) > 0.0004) {
-        currentRef.current += diff * LERP
-        setDisplayProgress(currentRef.current)
-      } else if (currentRef.current !== targetRef.current) {
-        currentRef.current = targetRef.current
-        setDisplayProgress(currentRef.current)
+    const tick = (now: number) => {
+      if (autoStartRef.current !== null) {
+        const elapsed = now - autoStartRef.current
+        const raw = Math.min(elapsed / AUTO_OPEN_MS, 1)
+        const eased = easeOutCubic(raw)
+        setDisplayProgress(eased)
+
+        if (raw >= 1) {
+          autoStartRef.current = null
+          fadeOutChime()
+        }
       }
+
       rafRef.current = requestAnimationFrame(tick)
     }
 
     rafRef.current = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(rafRef.current)
-  }, [])
+    return () => {
+      cancelAnimationFrame(rafRef.current)
+      cancelAnimationFrame(fadeRafRef.current)
+      audioRef.current?.pause()
+      audioRef.current = null
+    }
+  }, [fadeOutChime])
 
   useEffect(() => {
     const onWheel = (event: WheelEvent) => {
       event.preventDefault()
-      bumpProgress(event.deltaY * SCROLL_SENSITIVITY)
+      if (event.deltaY > 0) bumpScroll(event.deltaY * 0.001)
     }
 
     const onTouchStart = (event: TouchEvent) => {
@@ -45,9 +127,9 @@ export default function DoorsPage() {
     const onTouchMove = (event: TouchEvent) => {
       const y = event.touches[0]?.clientY ?? touchStartY.current
       const delta = touchStartY.current - y
-      if (Math.abs(delta) > 0.5) {
+      if (delta > 2) {
         event.preventDefault()
-        bumpProgress(delta * 0.004)
+        bumpScroll(delta * 0.002)
         touchStartY.current = y
       }
     }
@@ -55,7 +137,7 @@ export default function DoorsPage() {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'ArrowDown' || event.key === 'PageDown' || event.key === ' ') {
         event.preventDefault()
-        bumpProgress(0.055)
+        triggerAutoOpen()
       }
     }
 
@@ -70,7 +152,7 @@ export default function DoorsPage() {
       window.removeEventListener('touchmove', onTouchMove)
       window.removeEventListener('keydown', onKeyDown)
     }
-  }, [bumpProgress])
+  }, [bumpScroll, triggerAutoOpen])
 
   const open = displayProgress
   const hintOpacity = Math.max(0, 1 - open * 3.5)
@@ -79,56 +161,13 @@ export default function DoorsPage() {
     <div
       className="doors-page"
       style={{ '--door-open': open } as React.CSSProperties}
-      aria-label="Enter boutique"
+      aria-label="Open doors"
     >
-      <div className="doors-page__marble" aria-hidden="true" />
-      <div className="doors-page__vignette" aria-hidden="true" />
-      <div className="doors-page__reveal" aria-hidden="true" />
+      <div className="doors-page__bg" aria-hidden="true" />
 
       <div className="doors-page__portal">
-        <div className="doors-page__lintel" aria-hidden="true">
-          <span className="doors-page__lintel-line" />
-        </div>
-
-        <div className="doors-page__frame">
-          <div className="doors-page__frame-inner" aria-hidden="true" />
-
-          <div className="doors-page__door doors-page__door--left">
-            <div className="doors-page__door-inner">
-              <div className="doors-page__door-face">
-                <div className="doors-page__door-groove doors-page__door-groove--outer" />
-                <div className="doors-page__door-panel doors-page__door-panel--top" />
-                <div className="doors-page__door-panel doors-page__door-panel--mid" />
-                <div className="doors-page__door-panel doors-page__door-panel--bottom" />
-                <div className="doors-page__door-handle">
-                  <span className="doors-page__door-handle-neck" />
-                  <span className="doors-page__door-handle-lever" />
-                </div>
-              </div>
-              <div className="doors-page__door-edge" />
-            </div>
-          </div>
-
-          <div className="doors-page__door doors-page__door--right">
-            <div className="doors-page__door-inner">
-              <div className="doors-page__door-face">
-                <div className="doors-page__door-groove doors-page__door-groove--outer" />
-                <div className="doors-page__door-panel doors-page__door-panel--top" />
-                <div className="doors-page__door-panel doors-page__door-panel--mid" />
-                <div className="doors-page__door-panel doors-page__door-panel--bottom" />
-                <div className="doors-page__door-handle">
-                  <span className="doors-page__door-handle-neck" />
-                  <span className="doors-page__door-handle-lever" />
-                </div>
-              </div>
-              <div className="doors-page__door-edge" />
-            </div>
-          </div>
-
-          <div className="doors-page__seam-glow" aria-hidden="true" />
-        </div>
-
-        <div className="doors-page__sill" aria-hidden="true" />
+        <DoorLeaf side="left" />
+        <DoorLeaf side="right" />
       </div>
 
       <div
@@ -136,7 +175,6 @@ export default function DoorsPage() {
         style={{ opacity: hintOpacity }}
         aria-hidden={open > 0.12}
       >
-        <span className="doors-page__hint-line" />
         <span className="doors-page__hint-text">Scroll to open</span>
         <span className="doors-page__hint-chevron" />
       </div>

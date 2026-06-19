@@ -7,15 +7,15 @@ type AppPhase = 'loader' | 'doors'
 
 export default function App() {
   const [phase, setPhase] = useState<AppPhase>('loader')
-  const [doorsVisible, setDoorsVisible] = useState(false)
+  const [showDoors, setShowDoors] = useState(false)
 
   return (
     <>
-      {doorsVisible && phase === 'doors' && <DoorsPage />}
+      {showDoors && <DoorsPage />}
 
       {phase === 'loader' && (
         <LoaderScreen
-          onExitStart={() => setDoorsVisible(true)}
+          onExitStart={() => setShowDoors(true)}
           onComplete={() => setPhase('doors')}
         />
       )}
