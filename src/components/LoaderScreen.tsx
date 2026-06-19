@@ -1,23 +1,41 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import AmbientSparkles from './AmbientSparkles'
-import SparkleBar from './SparkleBar'
+import GoldLine from './GoldLine'
 import './LoaderScreen.css'
 
 interface LoaderScreenProps {
   onComplete: () => void
+  onReveal?: () => void
   duration?: number
 }
 
-const LOADING_CHARS = 'Loading'.split('')
+type LoaderPhase = 'loading' | 'shine' | 'reveal' | 'exit'
+
+const TAGLINES = [
+  'Luxury Crafted',
+  'Timeless Elegance',
+  'Fine Jewellery Collection',
+  'Welcome to MAJ Boutique',
+] as const
+
+function getTaglineIndex(progress: number) {
+  if (progress >= 75) return 3
+  if (progress >= 50) return 2
+  if (progress >= 25) return 1
+  return 0
+}
 
 export default function LoaderScreen({
   onComplete,
-  duration = 4800,
+  onReveal,
+  duration = 5000,
 }: LoaderScreenProps) {
   const [progress, setProgress] = useState(0)
-  const [fadeOut, setFadeOut] = useState(false)
+  const [phase, setPhase] = useState<LoaderPhase>('loading')
+  const [displayPercent, setDisplayPercent] = useState(0)
   const startTime = useRef<number | null>(null)
   const rafId = useRef<number>(0)
+  const completedRef = useRef(false)
 
   const easeOutQuart = useCallback((t: number) => 1 - Math.pow(1 - t, 4), [])
 
@@ -28,41 +46,75 @@ export default function LoaderScreen({
       const raw = Math.min(elapsed / duration, 1)
       const eased = easeOutQuart(raw)
 
-      setProgress(eased * 100)
+      const next = eased * 100
+      setProgress(next)
+      setDisplayPercent(Math.round(next))
 
       if (raw < 1) {
         rafId.current = requestAnimationFrame(tick)
-      } else {
-        setFadeOut(true)
-        setTimeout(onComplete, 1100)
       }
     }
 
     rafId.current = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(rafId.current)
-  }, [duration, easeOutQuart, onComplete])
+  }, [duration, easeOutQuart])
+
+  useEffect(() => {
+    if (progress < 100 || completedRef.current) return
+    completedRef.current = true
+
+    setPhase('shine')
+
+    const revealTimer = window.setTimeout(() => {
+      setPhase('reveal')
+      onReveal?.()
+    }, 1000)
+
+    const exitTimer = window.setTimeout(() => setPhase('exit'), 1800)
+
+    const completeTimer = window.setTimeout(onComplete, 2600)
+
+    return () => {
+      window.clearTimeout(revealTimer)
+      window.clearTimeout(exitTimer)
+      window.clearTimeout(completeTimer)
+    }
+  }, [progress, onComplete, onReveal])
+
+  const taglineIndex = getTaglineIndex(progress)
 
   return (
-    <div className={`loader-screen${fadeOut ? ' loader-screen--exit' : ''}`}>
+    <div
+      className={`loader-screen loader-screen--${phase}`}
+      aria-busy={phase !== 'exit'}
+      aria-label="Loading MAJ Boutique"
+    >
       <div className="loader-screen__bg" aria-hidden="true" />
       <div className="loader-screen__overlay" aria-hidden="true" />
-      <div className="loader-screen__light-sweep" aria-hidden="true" />
+
+      <div className="loader-screen__diamond-reflections" aria-hidden="true">
+        <div className="loader-screen__diamond loader-screen__diamond--1" />
+        <div className="loader-screen__diamond loader-screen__diamond--2" />
+      </div>
+
       <AmbientSparkles />
+
+      <div className="loader-screen__gold-reveal" aria-hidden="true" />
 
       <div className="loader-screen__content">
         <div className="loader-screen__brand">
           <div className="loader-screen__logo-medallion">
-            <div className="loader-screen__orbit loader-screen__orbit--outer" />
-            <div className="loader-screen__orbit loader-screen__orbit--inner" />
-            <div className="loader-screen__ring-glow" />
+            <div className="loader-screen__logo-glow" aria-hidden="true" />
             <div className="loader-screen__logo-circle">
               <img
                 src="/wh_logo.jpeg"
                 alt="MAJ Boutique"
                 className="loader-screen__logo"
+                width={210}
+                height={210}
                 draggable={false}
               />
-              <div className="loader-screen__logo-shine" />
+              <div className="loader-screen__logo-shine" aria-hidden="true" />
             </div>
           </div>
 
@@ -75,29 +127,24 @@ export default function LoaderScreen({
           </div>
 
           <div className="loader-screen__loading">
-            <SparkleBar progress={progress} />
+            <GoldLine progress={progress} />
+
             <div className="loader-screen__meta">
-              <span className="loader-screen__label" aria-label="Loading">
-                {LOADING_CHARS.map((char, i) => (
-                  <span
-                    key={i}
-                    className="loader-screen__label-char"
-                    style={{ animationDelay: `${i * 0.12}s` }}
-                  >
-                    {char}
-                  </span>
-                ))}
-                <span className="loader-screen__label-dots">
-                  <span />
-                  <span />
-                  <span />
-                </span>
-              </span>
-              <span className="loader-screen__percent">
-                {Math.round(progress)}
+              <div className="loader-screen__tagline-slot">
+                <p
+                  key={taglineIndex}
+                  className="loader-screen__tagline"
+                >
+                  {TAGLINES[taglineIndex]}
+                </p>
+              </div>
+              <span className="loader-screen__percent" aria-live="polite">
+                {displayPercent}
                 <span className="loader-screen__percent-sign">%</span>
               </span>
             </div>
+
+            <p className="loader-screen__loading-label">Loading</p>
           </div>
         </div>
       </div>
