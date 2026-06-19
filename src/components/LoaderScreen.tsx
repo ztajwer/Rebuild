@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import AmbientSparkles from './AmbientSparkles'
+import GoldenGlitter from './GoldenGlitter'
 import GoldLine from './GoldLine'
 import './LoaderScreen.css'
 
@@ -18,6 +18,11 @@ const TAGLINES = [
   'Welcome to MAJ Boutique',
 ] as const
 
+const SHINE_MS = 280
+const REVEAL_MS = 220
+const EXIT_MS = 380
+const COMPLETE_MS = 520
+
 function getTaglineIndex(progress: number) {
   if (progress >= 75) return 3
   if (progress >= 50) return 2
@@ -28,7 +33,7 @@ function getTaglineIndex(progress: number) {
 export default function LoaderScreen({
   onComplete,
   onReveal,
-  duration = 5000,
+  duration = 700,
 }: LoaderScreenProps) {
   const [progress, setProgress] = useState(0)
   const [phase, setPhase] = useState<LoaderPhase>('loading')
@@ -37,27 +42,25 @@ export default function LoaderScreen({
   const rafId = useRef<number>(0)
   const completedRef = useRef(false)
 
-  const easeOutQuart = useCallback((t: number) => 1 - Math.pow(1 - t, 4), [])
+  const easeOutCubic = useCallback((t: number) => 1 - Math.pow(1 - t, 3), [])
 
   useEffect(() => {
     const tick = (now: number) => {
       if (startTime.current === null) startTime.current = now
       const elapsed = now - startTime.current
       const raw = Math.min(elapsed / duration, 1)
-      const eased = easeOutQuart(raw)
-
+      const eased = easeOutCubic(raw)
       const next = eased * 100
+
       setProgress(next)
       setDisplayPercent(Math.round(next))
 
-      if (raw < 1) {
-        rafId.current = requestAnimationFrame(tick)
-      }
+      if (raw < 1) rafId.current = requestAnimationFrame(tick)
     }
 
     rafId.current = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(rafId.current)
-  }, [duration, easeOutQuart])
+  }, [duration, easeOutCubic])
 
   useEffect(() => {
     if (progress < 100 || completedRef.current) return
@@ -68,11 +71,11 @@ export default function LoaderScreen({
     const revealTimer = window.setTimeout(() => {
       setPhase('reveal')
       onReveal?.()
-    }, 1000)
+    }, SHINE_MS)
 
-    const exitTimer = window.setTimeout(() => setPhase('exit'), 1800)
+    const exitTimer = window.setTimeout(() => setPhase('exit'), SHINE_MS + REVEAL_MS)
 
-    const completeTimer = window.setTimeout(onComplete, 2600)
+    const completeTimer = window.setTimeout(onComplete, COMPLETE_MS)
 
     return () => {
       window.clearTimeout(revealTimer)
@@ -97,8 +100,7 @@ export default function LoaderScreen({
         <div className="loader-screen__diamond loader-screen__diamond--2" />
       </div>
 
-      <AmbientSparkles />
-
+      <GoldenGlitter />
       <div className="loader-screen__gold-reveal" aria-hidden="true" />
 
       <div className="loader-screen__content">
@@ -110,9 +112,11 @@ export default function LoaderScreen({
                 src="/wh_logo.jpeg"
                 alt="MAJ Boutique"
                 className="loader-screen__logo"
-                width={210}
-                height={210}
+                width={300}
+                height={300}
                 draggable={false}
+                decoding="async"
+                fetchPriority="high"
               />
               <div className="loader-screen__logo-shine" aria-hidden="true" />
             </div>
@@ -121,9 +125,6 @@ export default function LoaderScreen({
           <div className="loader-screen__typography">
             <p className="loader-screen__eyebrow">Fine Jewellery</p>
             <h1 className="loader-screen__title">MAJ Boutique</h1>
-            <div className="loader-screen__divider">
-              <span className="loader-screen__divider-gem" />
-            </div>
           </div>
 
           <div className="loader-screen__loading">
@@ -131,10 +132,7 @@ export default function LoaderScreen({
 
             <div className="loader-screen__meta">
               <div className="loader-screen__tagline-slot">
-                <p
-                  key={taglineIndex}
-                  className="loader-screen__tagline"
-                >
+                <p key={taglineIndex} className="loader-screen__tagline">
                   {TAGLINES[taglineIndex]}
                 </p>
               </div>
