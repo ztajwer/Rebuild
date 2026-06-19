@@ -1,22 +1,20 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import LuxeGlitter from './LuxeGlitter'
 import GoldLine from './GoldLine'
 import './LoaderScreen.css'
 
 interface LoaderScreenProps {
   onComplete: () => void
-  onReveal?: () => void
+  onExitStart?: () => void
   duration?: number
 }
 
-type LoaderPhase = 'loading' | 'reveal' | 'exit'
+type LoaderPhase = 'loading' | 'exit'
 
-const REVEAL_MS = 400
-const COMPLETE_MS = 900
+const EXIT_MS = 380
 
 export default function LoaderScreen({
   onComplete,
-  onReveal,
+  onExitStart,
   duration = 4000,
 }: LoaderScreenProps) {
   const [progress, setProgress] = useState(0)
@@ -47,20 +45,12 @@ export default function LoaderScreen({
     if (progress < 100 || completedRef.current) return
     completedRef.current = true
 
-    const revealTimer = window.setTimeout(() => {
-      setPhase('reveal')
-      onReveal?.()
-    }, 200)
+    setPhase('exit')
+    onExitStart?.()
+    const completeTimer = window.setTimeout(onComplete, EXIT_MS)
 
-    const exitTimer = window.setTimeout(() => setPhase('exit'), REVEAL_MS)
-    const completeTimer = window.setTimeout(onComplete, COMPLETE_MS)
-
-    return () => {
-      window.clearTimeout(revealTimer)
-      window.clearTimeout(exitTimer)
-      window.clearTimeout(completeTimer)
-    }
-  }, [progress, onComplete, onReveal])
+    return () => window.clearTimeout(completeTimer)
+  }, [progress, onComplete, onExitStart])
 
   return (
     <div
@@ -69,19 +59,13 @@ export default function LoaderScreen({
       aria-label="Loading MAJ Boutique"
     >
       <div className="loader-screen__bg" aria-hidden="true" />
-      <LuxeGlitter />
-      <div className="loader-screen__gold-reveal" aria-hidden="true" />
+      <div className="loader-screen__scrim" aria-hidden="true" />
 
       <div className="loader-screen__content">
         <div className="loader-screen__brand">
           <div className="loader-screen__logo-stage">
-            <div className="loader-screen__logo-outline" aria-hidden="true">
-              <span className="loader-screen__logo-outline-glow" />
-              <span className="loader-screen__logo-outline-outer" />
-              <span className="loader-screen__logo-outline-shine" />
-              <span className="loader-screen__logo-outline-inner" />
-            </div>
             <div className="loader-screen__logo-circle">
+              <div className="loader-screen__logo-ring" aria-hidden="true" />
               <img
                 src="/wh_logo.png"
                 alt="MAJ Boutique"

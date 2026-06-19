@@ -3,29 +3,21 @@ import LoaderScreen from './components/LoaderScreen'
 import DoorsPage from './components/DoorsPage'
 import './App.css'
 
-type AppPhase = 'loader' | 'doors' | 'home'
+type AppPhase = 'loader' | 'doors'
 
 export default function App() {
   const [phase, setPhase] = useState<AppPhase>('loader')
-  const [doorsMounted, setDoorsMounted] = useState(false)
+  const [doorsVisible, setDoorsVisible] = useState(false)
 
   return (
     <>
-      {doorsMounted && phase !== 'home' && (
-        <DoorsPage onComplete={() => setPhase('home')} />
-      )}
+      {doorsVisible && phase === 'doors' && <DoorsPage />}
 
       {phase === 'loader' && (
         <LoaderScreen
-          onReveal={() => setDoorsMounted(true)}
+          onExitStart={() => setDoorsVisible(true)}
           onComplete={() => setPhase('doors')}
         />
-      )}
-
-      {phase === 'home' && (
-        <main className="main-placeholder">
-          <p>Welcome to MAJ Boutique</p>
-        </main>
       )}
     </>
   )
