@@ -38,7 +38,7 @@
     transparent 100%
   );
   background-size: 40% 100%;
-  animation: gold-line-shimmer 3.5s ease-in-out infinite;
+  animation: gold-line-shimmer 1.8s ease-in-out infinite;
   opacity: 0.7;
 }
 

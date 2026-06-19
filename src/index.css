@@ -16,7 +16,7 @@ body,
 }
 
 body {
-  font-family: 'Cormorant Garamond', 'Montserrat', Georgia, serif;
+  font-family: 'Inter', 'Poppins', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
