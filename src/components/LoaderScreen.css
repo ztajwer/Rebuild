@@ -98,17 +98,100 @@
   animation: logo-fade-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.1s forwards;
 }
 
-.loader-screen__logo-ring {
+.loader-screen__logo-outline {
   position: absolute;
-  inset: -5px;
+  inset: -12px;
   border-radius: 50%;
-  border: 1px solid rgba(212, 190, 150, 0.35);
-  box-shadow: 0 0 28px rgba(212, 190, 150, 0.15);
-  animation: ring-glow 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.loader-screen__logo-outline-glow {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(212, 175, 55, 0.28) 0%,
+    rgba(212, 175, 55, 0.08) 45%,
+    transparent 72%
+  );
+  animation: outline-glow-pulse 3.2s ease-in-out infinite;
+  will-change: opacity, transform;
+}
+
+.loader-screen__logo-outline-outer,
+.loader-screen__logo-outline-shine,
+.loader-screen__logo-outline-inner {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  will-change: transform;
+}
+
+.loader-screen__logo-outline-outer {
+  padding: 2.5px;
+  background: conic-gradient(
+    from 0deg,
+    rgba(139, 105, 20, 0.15) 0deg,
+    #8b6914 40deg,
+    #c9a227 80deg,
+    #fff8e7 110deg,
+    #f5e6c8 130deg,
+    #d4af37 160deg,
+    #b8923e 200deg,
+    rgba(139, 105, 20, 0.2) 260deg,
+    #c9a227 300deg,
+    #fff8e7 330deg,
+    rgba(139, 105, 20, 0.15) 360deg
+  );
+  filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.45));
+  animation: outline-spin 6s linear infinite;
+}
+
+.loader-screen__logo-outline-shine {
+  inset: 1px;
+  padding: 1.5px;
+  opacity: 0.95;
+  background: conic-gradient(
+    from 90deg,
+    transparent 0deg 250deg,
+    rgba(255, 252, 240, 0.15) 280deg,
+    rgba(255, 255, 255, 0.95) 305deg,
+    rgba(255, 248, 220, 0.85) 320deg,
+    rgba(255, 255, 255, 0.5) 335deg,
+    transparent 360deg
+  );
+  animation: outline-spin 2.8s linear infinite;
+  mix-blend-mode: screen;
+}
+
+.loader-screen__logo-outline-inner {
+  inset: 4px;
+  padding: 1px;
+  opacity: 0.75;
+  background: conic-gradient(
+    from 180deg,
+    transparent 0deg 100deg,
+    rgba(255, 248, 231, 0.9) 130deg,
+    #d4af37 160deg,
+    rgba(201, 162, 39, 0.5) 190deg,
+    transparent 240deg 360deg
+  );
+  animation: outline-spin-reverse 4.2s linear infinite;
 }
 
 .loader-screen__logo-circle {
   position: relative;
+  z-index: 1;
   width: 100%;
   height: 100%;
   border-radius: 50%;
@@ -195,9 +278,23 @@
   50% { opacity: 0.55; transform: translateX(14%) translateZ(0); }
 }
 
-@keyframes ring-glow {
-  0%, 100% { opacity: 0.55; box-shadow: 0 0 20px rgba(212, 190, 150, 0.1); }
-  50% { opacity: 1; box-shadow: 0 0 36px rgba(212, 190, 150, 0.25); }
+@keyframes outline-spin {
+  to { transform: rotate(360deg) translateZ(0); }
+}
+
+@keyframes outline-spin-reverse {
+  to { transform: rotate(-360deg) translateZ(0); }
+}
+
+@keyframes outline-glow-pulse {
+  0%, 100% {
+    opacity: 0.65;
+    transform: scale(0.98) translateZ(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.03) translateZ(0);
+  }
 }
 
 @keyframes fade-up {
@@ -262,7 +359,11 @@
   .loader-screen__gold-reveal,
   .loader-screen__logo-stage,
   .loader-screen__logo-shine,
-  .loader-screen__logo-ring,
+  .loader-screen__logo-outline,
+  .loader-screen__logo-outline-glow,
+  .loader-screen__logo-outline-outer,
+  .loader-screen__logo-outline-shine,
+  .loader-screen__logo-outline-inner,
   .loader-screen__loading {
     animation: none !important;
     opacity: 1 !important;

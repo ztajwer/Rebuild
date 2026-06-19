@@ -75,7 +75,12 @@ export default function LoaderScreen({
       <div className="loader-screen__content">
         <div className="loader-screen__brand">
           <div className="loader-screen__logo-stage">
-            <div className="loader-screen__logo-ring" aria-hidden="true" />
+            <div className="loader-screen__logo-outline" aria-hidden="true">
+              <span className="loader-screen__logo-outline-glow" />
+              <span className="loader-screen__logo-outline-outer" />
+              <span className="loader-screen__logo-outline-shine" />
+              <span className="loader-screen__logo-outline-inner" />
+            </div>
             <div className="loader-screen__logo-circle">
               <img
                 src="/wh_logo.png"

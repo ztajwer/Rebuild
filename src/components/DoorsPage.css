@@ -182,6 +182,18 @@
   }
 }
 
+@media (max-width: 768px) {
+  .doors-page__panel {
+    background-image:
+      linear-gradient(
+        135deg,
+        rgba(255, 252, 247, 0.06) 0%,
+        transparent 50%
+      ),
+      url('/mob_bg.png');
+  }
+}
+
 @media (max-width: 640px) {
   .doors-page__content {
     text-align: center;
