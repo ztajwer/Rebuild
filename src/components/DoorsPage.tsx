@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import './DoorsPage.css'
 
-const AUTO_OPEN_MS = 2800
+const AUTO_OPEN_MS = 2600
 const CHIME_SRC = '/Sparkling Chime Sound - Meinl Sonic Energy.mp3'
 const TRIGGER_DELTA = 0.008
 
@@ -14,8 +14,14 @@ function DoorLeaf({ side }: { side: 'left' | 'right' }) {
     <div className={`doors-page__door doors-page__door--${side}`}>
       <div className="doors-page__door-inner">
         <div className="doors-page__door-face">
-          <div className="doors-page__door-marble" aria-hidden="true" />
-          <div className="doors-page__door-shine" aria-hidden="true" />
+          <div className="doors-page__door-grid">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <span key={i} className="doors-page__door-cell" />
+            ))}
+          </div>
+          <div className="doors-page__door-handle">
+            <span className="doors-page__door-handle-bar" />
+          </div>
         </div>
       </div>
     </div>
@@ -40,7 +46,7 @@ export default function DoorsPage() {
     const start = performance.now()
 
     const fade = (now: number) => {
-      const t = Math.min((now - start) / 700, 1)
+      const t = Math.min((now - start) / 800, 1)
       audio.volume = Math.max(0, startVol * (1 - t))
       if (t < 1) {
         fadeRafRef.current = requestAnimationFrame(fade)
@@ -56,9 +62,8 @@ export default function DoorsPage() {
 
   const startChime = useCallback(() => {
     if (audioRef.current) return
-
     const audio = new Audio(CHIME_SRC)
-    audio.volume = 0.38
+    audio.volume = 0.36
     audio.loop = true
     audioRef.current = audio
     audio.play().catch(() => {
@@ -85,15 +90,13 @@ export default function DoorsPage() {
       if (autoStartRef.current !== null) {
         const elapsed = now - autoStartRef.current
         const raw = Math.min(elapsed / AUTO_OPEN_MS, 1)
-        const eased = easeOutCubic(raw)
-        setDisplayProgress(eased)
+        setDisplayProgress(easeOutCubic(raw))
 
         if (raw >= 1) {
           autoStartRef.current = null
           fadeOutChime()
         }
       }
-
       rafRef.current = requestAnimationFrame(tick)
     }
 
